@@ -1,2 +1,2 @@
 # boone-03.github.io
-About Simple generated webapp for IE4200
+Simple generated webapp for IE4200
