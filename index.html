@@ -88,27 +88,34 @@
         const suggestionContainer = document.getElementById('suggestion-container');
         const suggestionEl = document.getElementById('suggestion');
         
-        // --- Logic Functions ---
-        function getClothingSuggestion(temp, condition) {
-            const lowerCaseCondition = condition.toLowerCase();
-            if (lowerCaseCondition.includes('rain')) {
-                return "It's rainy. A waterproof jacket or raincoat is a must. Wear waterproof shoes if you have them.";
-            }
-            if (lowerCaseCondition.includes('snow')) {
-                return "Snow is expected! Bundle up with a heavy coat, hat, gloves, and a scarf. Waterproof boots are essential.";
-            }
-            if (temp >= 80) {
-                return "It's hot out! A short-sleeve shirt and shorts are perfect for today. Don't forget sunscreen!";
-            } else if (temp >= 65) {
-                return "Great weather! A t-shirt and jeans or long pants will be comfortable.";
-            } else if (temp >= 50) {
-                return "It's a bit cool. A long-sleeve shirt or a light sweater is a good choice. You might want a light jacket.";
-            } else if (temp >= 35) {
-                return "It's chilly! Layer up with a sweater and a jacket. Long pants are a must.";
-            } else {
-                return "It's very cold! Wear a heavy coat, a warm sweater, and consider thermal layers. A hat and gloves are highly recommended.";
-            }
-        }
+      // --- Logic Functions ---
+function getClothingSuggestion(temp, condition) {
+    const lowerCaseCondition = condition.toLowerCase();
+    let suggestion = "";
+
+    // Handle weather condition first
+    if (lowerCaseCondition.includes('rain')) {
+        suggestion += "It's rainy. A waterproof jacket or raincoat is a must. Wear waterproof shoes if you have them. ";
+    } else if (lowerCaseCondition.includes('snow')) {
+        suggestion += "Snow is expected! Bundle up with a heavy coat, hat, gloves, and a scarf. Waterproof boots are essential. ";
+    }
+
+    // Handle temperature-based suggestions
+    if (temp >= 80) {
+        suggestion += "It's hot out! A short-sleeve shirt and shorts are perfect for today. Don't forget sunscreen!";
+    } else if (temp >= 65) {
+        suggestion += "Great weather! A t-shirt and jeans or long pants will be comfortable.";
+    } else if (temp >= 50) {
+        suggestion += "It's a bit cool. A long-sleeve shirt or a light sweater is a good choice. You might want a light jacket.";
+    } else if (temp >= 35) {
+        suggestion += "It's chilly! Layer up with a sweater and a jacket. Long pants are a must.";
+    } else {
+        suggestion += "It's very cold! Wear a heavy coat, a warm sweater, and consider thermal layers. A hat and gloves are highly recommended.";
+    }
+
+    return suggestion;
+}
+
 
         // Event Listeners
         suggestionForm.addEventListener('submit', (e) => {
@@ -134,4 +141,5 @@
     </script>
 </body>
 </html>
+
 
