@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Wardrobe</title>
+    <title>Weather Wardrobe Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -14,9 +15,9 @@
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border-radius: 1rem;
+            border-radius: 1.5rem; /* Slightly larger border-radius */
             border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
+            transition: all 0.5s ease;
         }
         /* Style for number input arrows */
         input[type=number]::-webkit-inner-spin-button, 
@@ -27,53 +28,82 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
+        /* Animation for results */
+        #suggestion-container.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #suggestion-container {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-400 to-indigo-600 min-h-screen flex items-center justify-center p-4 text-white">
 
     <div id="app-container" class="w-full max-w-md mx-auto">
 
-        <!-- Main Card -->
         <div class="card p-6 md:p-8 text-center shadow-2xl space-y-6">
             
-            <!-- Header -->
             <div>
-                <h1 class="text-3xl font-bold">Weather Wardrobe</h1>
-                <p class="text-indigo-200 text-lg">Get clothing advice for any weather</p>
+                <h1 class="text-4xl font-extrabold flex items-center justify-center gap-2">
+                    <i class="fas fa-sun text-yellow-300"></i>
+                    Weather Wardrobe Pro
+                </h1>
+                <p class="text-indigo-200 text-lg mt-1">Get detailed, layered clothing advice</p>
             </div>
 
-            <!-- User Input Form -->
             <form id="suggestion-form" class="space-y-4 text-left">
                 <div class="flex flex-col sm:flex-row gap-4">
                     <div class="w-full sm:w-1/2">
-                        <label for="temp-input" class="block text-sm font-medium mb-1 text-indigo-100">Temperature (°F)</label>
-                        <input id="temp-input" type="number" placeholder="e.g., 72" class="w-full px-4 py-3 rounded-lg bg-white/80 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition duration-300">
+                        <label for="temp-input" class="block text-sm font-semibold mb-1 text-indigo-100">Temperature (°F)</label>
+                        <input id="temp-input" type="number" placeholder="e.g., 72" class="w-full px-4 py-3 rounded-lg bg-white/90 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-4 focus:ring-indigo-400 transition duration-300">
                     </div>
                     <div class="w-full sm:w-1/2">
-                        <label for="condition-input" class="block text-sm font-medium mb-1 text-indigo-100">Condition</label>
-                        <select id="condition-input" class="w-full px-4 py-3 rounded-lg bg-white/80 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition duration-300">
+                        <label for="condition-input" class="block text-sm font-semibold mb-1 text-indigo-100">Condition</label>
+                        <select id="condition-input" class="w-full px-4 py-3 rounded-lg bg-white/90 text-gray-900 focus:outline-none focus:ring-4 focus:ring-indigo-400 transition duration-300">
                             <option>Sunny</option>
                             <option>Partly Cloudy</option>
                             <option>Cloudy</option>
                             <option>Rainy</option>
+                            <option>Heavy Rain</option>
                             <option>Snowy</option>
                             <option>Windy</option>
                         </select>
                     </div>
                 </div>
-                 <p id="error-message" class="text-red-300 text-sm min-h-[20px] text-center"></p>
-                <button type="submit" class="w-full bg-white/30 hover:bg-white/40 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
-                    Get Suggestion
+                <p id="error-message" class="text-red-300 text-sm min-h-[20px] text-center"></p>
+                <button type="submit" class="w-full bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-500/50 transition duration-300 transform hover:scale-[1.01]">
+                    Get Layered Suggestion
                 </button>
             </form>
 
-            <!-- Suggestion Display (hidden initially) -->
-            <div id="suggestion-container" class="hidden space-y-4 pt-4">
-                <hr class="border-white/20">
-                <h2 class="text-2xl font-semibold">What to Wear</h2>
-                <div class="bg-black/10 p-4 rounded-lg">
-                    <p id="suggestion" class="text-center text-lg"></p>
+            <div id="suggestion-container" class="space-y-4 pt-4 hidden">
+                <hr class="border-white/30">
+                <div class="flex items-center justify-center gap-4 p-2 bg-black/10 rounded-xl">
+                    <div id="weather-icon" class="text-4xl"></div>
+                    <div>
+                        <h2 class="text-2xl font-bold" id="suggestion-title">Perfect Outfit for Today:</h2>
+                        <p class="text-indigo-200 text-sm">Based on <span id="display-temp"></span> & <span id="display-condition"></span></p>
+                    </div>
                 </div>
+
+                <div class="space-y-3 text-left">
+                    <div class="p-3 bg-black/10 rounded-lg">
+                        <h3 class="font-bold text-lg text-indigo-300">🧥 Outerwear</h3>
+                        <p id="outerwear-suggestion" class="text-white"></p>
+                    </div>
+                    <div class="p-3 bg-black/10 rounded-lg">
+                        <h3 class="font-bold text-lg text-indigo-300">👕 Main Layers</h3>
+                        <p id="main-layers-suggestion" class="text-white"></p>
+                    </div>
+                    <div class="p-3 bg-black/10 rounded-lg">
+                        <h3 class="font-bold text-lg text-indigo-300">🧤 Accessories & Shoes</h3>
+                        <p id="accessories-suggestion" class="text-white"></p>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -86,60 +116,19 @@
         const conditionInput = document.getElementById('condition-input');
         const errorMessage = document.getElementById('error-message');
         const suggestionContainer = document.getElementById('suggestion-container');
-        const suggestionEl = document.getElementById('suggestion');
+        const displayTemp = document.getElementById('display-temp');
+        const displayCondition = document.getElementById('display-condition');
+        const weatherIcon = document.getElementById('weather-icon');
         
-      // --- Logic Functions ---
-function getClothingSuggestion(temp, condition) {
-    const lowerCaseCondition = condition.toLowerCase();
-    let suggestion = "";
+        // Output Elements
+        const outerwearEl = document.getElementById('outerwear-suggestion');
+        const mainLayersEl = document.getElementById('main-layers-suggestion');
+        const accessoriesEl = document.getElementById('accessories-suggestion');
 
-    // Handle weather condition first
-    if (lowerCaseCondition.includes('rain')) {
-        suggestion += "It's rainy. A waterproof jacket or raincoat is a must. Wear waterproof shoes if you have them. ";
-    } else if (lowerCaseCondition.includes('snow')) {
-        suggestion += "Snow is expected! Bundle up with a heavy coat, hat, gloves, and a scarf. Waterproof boots are essential. ";
-    }
+        // --- Logic Functions ---
 
-    // Handle temperature-based suggestions
-    if (temp >= 80) {
-        suggestion += "It's hot out! A short-sleeve shirt and shorts are perfect for today. Don't forget sunscreen!";
-    } else if (temp >= 65) {
-        suggestion += "Great weather! A t-shirt and jeans or long pants will be comfortable.";
-    } else if (temp >= 50) {
-        suggestion += "It's a bit cool. A long-sleeve shirt or a light sweater is a good choice. You might want a light jacket.";
-    } else if (temp >= 35) {
-        suggestion += "It's chilly! Layer up with a sweater and a jacket. Long pants are a must.";
-    } else {
-        suggestion += "It's very cold! Wear a heavy coat, a warm sweater, and consider thermal layers. A hat and gloves are highly recommended.";
-    }
-
-    return suggestion;
-}
-
-
-        // Event Listeners
-        suggestionForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            errorMessage.textContent = '';
-            
-            const temp = tempInput.value;
-            const condition = conditionInput.value;
-
-            if (temp === '') {
-                errorMessage.textContent = 'Please enter a temperature.';
-                suggestionContainer.classList.add('hidden');
-                return;
-            }
-
-            const numericTemp = parseInt(temp, 10);
-            
-            const suggestionText = getClothingSuggestion(numericTemp, condition);
-            suggestionEl.textContent = suggestionText;
-            suggestionContainer.classList.remove('hidden');
-        });
-
-    </script>
-</body>
-</html>
-
-
+        function getWeatherIcon(condition) {
+            const c = condition.toLowerCase();
+            if (c.includes('rain')) return { icon: 'fas fa-cloud-showers-heavy', color: 'text-blue-300' };
+            if (c.includes('snow')) return { icon: 'far fa-snowflake', color: 'text-sky-300' };
+            if (c.includes('windy')) return { icon
