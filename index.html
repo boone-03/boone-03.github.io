@@ -1,200 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Wardrobe Pro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .card {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.5s ease;
-        }
-        /* Style for number input arrows */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-        /* Animation for results */
-        #suggestion-container.animate-in {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        #suggestion-container {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-        }
-    </style>
-</head>
-<body class="bg-gradient-to-br from-blue-400 to-indigo-600 min-h-screen flex items-center justify-center p-4 text-white">
+<script>
+    // --- DOM Elements ---
+    const suggestionForm = document.getElementById('suggestion-form');
+    const tempInput = document.getElementById('temp-input');
+    const conditionInput = document.getElementById('condition-input');
+    const errorMessage = document.getElementById('error-message');
+    const suggestionContainer = document.getElementById('suggestion-container');
+    const displayTemp = document.getElementById('display-temp');
+    const displayCondition = document.getElementById('display-condition');
+    const weatherIcon = document.getElementById('weather-icon');
+    
+    // Output Elements
+    const outerwearEl = document.getElementById('outerwear-suggestion');
+    const mainLayersEl = document.getElementById('main-layers-suggestion');
+    const accessoriesEl = document.getElementById('accessories-suggestion');
 
-    <div id="app-container" class="w-full max-w-md mx-auto">
+    // --- Logic Functions ---
 
-        <div class="card p-6 md:p-8 text-center shadow-2xl space-y-6">
-            
-            <div>
-                <h1 class="text-4xl font-extrabold flex items-center justify-center gap-2">
-                    <i class="fas fa-sun text-yellow-300"></i>
-                    Weather Wardrobe Pro
-                </h1>
-                <p class="text-indigo-200 text-lg mt-1">Get detailed, layered clothing advice</p>
-            </div>
+    function getWeatherIcon(condition) {
+        const c = condition.toLowerCase();
+        if (c.includes('rain')) return { icon: 'fas fa-cloud-showers-heavy', color: 'text-blue-300' };
+        if (c.includes('snow')) return { icon: 'far fa-snowflake', color: 'text-sky-300' };
+        if (c.includes('windy')) return { icon: 'fas fa-wind', color: 'text-gray-300' };
+        if (c.includes('sunny')) return { icon: 'fas fa-sun', color: 'text-yellow-300' };
+        if (c.includes('cloudy')) return { icon: 'fas fa-cloud', color: 'text-gray-400' };
+        return { icon: 'fas fa-question-circle', color: 'text-white' };
+    }
 
-            <form id="suggestion-form" class="space-y-4 text-left">
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <div class="w-full sm:w-1/2">
-                        <label for="temp-input" class="block text-sm font-semibold mb-1 text-indigo-100">Temperature (°F)</label>
-                        <input id="temp-input" type="number" placeholder="e.g., 72" class="w-full px-4 py-3 rounded-lg bg-white/90 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-4 focus:ring-indigo-400 transition duration-300">
-                    </div>
-                    <div class="w-full sm:w-1/2">
-                        <label for="condition-input" class="block text-sm font-semibold mb-1 text-indigo-100">Condition</label>
-                        <select id="condition-input" class="w-full px-4 py-3 rounded-lg bg-white/90 text-gray-900 focus:outline-none focus:ring-4 focus:ring-indigo-400 transition duration-300">
-                            <option>Sunny</option>
-                            <option>Partly Cloudy</option>
-                            <option>Cloudy</option>
-                            <option>Rainy</option>
-                            <option>Heavy Rain</option>
-                            <option>Snowy</option>
-                            <option>Windy</option>
-                        </select>
-                    </div>
-                </div>
-                <p id="error-message" class="text-red-300 text-sm min-h-[20px] text-center"></p>
-                <button type="submit" class="w-full bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-500/50 transition duration-300 transform hover:scale-[1.01]">
-                    Get Layered Suggestion
-                </button>
-            </form>
+    /**
+     * Generates detailed clothing advice broken into three categories.
+     */
+    function getClothingSuggestion(temp, condition) {
+        const lowerCaseCondition = condition.toLowerCase();
+        let outerwear = "";
+        let mainLayers = "";
+        let accessories = "Normal shoes and general comfort layers."; 
 
-            <div id="suggestion-container" class="space-y-4 pt-4 hidden">
-                <hr class="border-white/30">
-                <div class="flex items-center justify-center gap-4 p-2 bg-black/10 rounded-xl">
-                    <div id="weather-icon" class="text-4xl"></div>
-                    <div>
-                        <h2 class="text-2xl font-bold" id="suggestion-title">Perfect Outfit for Today:</h2>
-                        <p class="text-indigo-200 text-sm">Based on <span id="display-temp"></span> & <span id="display-condition"></span></p>
-                    </div>
-                </div>
-
-                <div class="space-y-3 text-left">
-                    <div class="p-3 bg-black/10 rounded-lg">
-                        <h3 class="font-bold text-lg text-indigo-300">🧥 Outerwear</h3>
-                        <p id="outerwear-suggestion" class="text-white"></p>
-                    </div>
-                    <div class="p-3 bg-black/10 rounded-lg">
-                        <h3 class="font-bold text-lg text-indigo-300">👕 Main Layers</h3>
-                        <p id="main-layers-suggestion" class="text-white"></p>
-                    </div>
-                    <div class="p-3 bg-black/10 rounded-lg">
-                        <h3 class="font-bold text-lg text-indigo-300">🧤 Accessories & Shoes</h3>
-                        <p id="accessories-suggestion" class="text-white"></p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-    </div>
-
-    <script>
-        // DOM Elements
-        const suggestionForm = document.getElementById('suggestion-form');
-        const tempInput = document.getElementById('temp-input');
-        const conditionInput = document.getElementById('condition-input');
-        const errorMessage = document.getElementById('error-message');
-        const suggestionContainer = document.getElementById('suggestion-container');
-        const displayTemp = document.getElementById('display-temp');
-        const displayCondition = document.getElementById('display-condition');
-        const weatherIcon = document.getElementById('weather-icon');
-        
-        // Output Elements
-        const outerwearEl = document.getElementById('outerwear-suggestion');
-        const mainLayersEl = document.getElementById('main-layers-suggestion');
-        const accessoriesEl = document.getElementById('accessories-suggestion');
-
-        // --- Logic Functions ---
-
-        function getWeatherIcon(condition) {
-            const c = condition.toLowerCase();
-            if (c.includes('rain')) return { icon: 'fas fa-cloud-showers-heavy', color: 'text-blue-300' };
-            if (c.includes('snow')) return { icon: 'far fa-snowflake', color: 'text-sky-300' };
-            if (c.includes('windy')) return { icon: 'fas fa-wind', color: 'text-gray-300' };
-            if (c.includes('sunny')) return { icon: 'fas fa-sun', color: 'text-yellow-300' };
-            if (c.includes('cloudy')) return { icon: 'fas fa-cloud', color: 'text-gray-400' };
-            return { icon: 'fas fa-question-circle', color: 'text-white' };
+        // 1. Condition Priority (Sets Outerwear and Accessories baseline)
+        if (lowerCaseCondition.includes('rain')) {
+            outerwear = "A <strong>waterproof jacket or raincoat</strong> is essential.";
+            accessories = "Wear <strong>waterproof shoes or boots</strong> if possible, and carry an <strong>umbrella</strong>.";
+        } else if (lowerCaseCondition.includes('snow')) {
+            outerwear = "A <strong>heavy, waterproof winter coat</strong> is crucial.";
+            accessories = "<strong>Waterproof, insulated boots</strong>, <strong>hat</strong>, and <strong>gloves/mittens</strong> are necessary.";
+        } else if (lowerCaseCondition.includes('windy')) {
+             if (temp >= 50) accessories += " Consider a <strong>windbreaker</strong> or neck gaiter.";
         }
 
-        /**
-         * Generates detailed clothing advice broken into three categories.
-         */
-        function getClothingSuggestion(temp, condition) {
-            const lowerCaseCondition = condition.toLowerCase();
-            let outerwear = "";
-            let mainLayers = "";
-            let accessories = "Normal shoes and general comfort layers."; // Default
-
-            // 1. Condition Priority (Sets Outerwear and Accessories baseline)
-            if (lowerCaseCondition.includes('rain')) {
-                outerwear = "A <strong>waterproof jacket or raincoat</strong> is essential.";
-                accessories = "Wear <strong>waterproof shoes or boots</strong> if possible, and carry an <strong>umbrella</strong>.";
-            } else if (lowerCaseCondition.includes('snow')) {
-                outerwear = "A <strong>heavy, waterproof winter coat</strong> is crucial.";
-                accessories = "<strong>Waterproof, insulated boots</strong>, <strong>hat</strong>, and <strong>gloves/mittens</strong> are necessary.";
-            } else if (lowerCaseCondition.includes('windy')) {
-                 if (temp >= 50) accessories += " Consider a <strong>windbreaker</strong> or neck gaiter.";
-            }
-
-            // 2. Temperature Logic (Sets Main Layers and refines Outerwear if not set by condition)
-            if (temp >= 80) {
-                mainLayers = "It's hot! <strong>Short-sleeve shirt, tank top</strong>, and <strong>shorts or a light dress</strong> are perfect.";
-                if (!outerwear) outerwear = "No coat needed. Maybe a light cover-up if going indoors.";
-                accessories = "<strong>Sunscreen</strong>, <strong>sunglasses</strong>, and <strong>sandals or light sneakers</strong> are ideal.";
-            } else if (temp >= 65) {
-                mainLayers = "Comfortable layers: A <strong>t-shirt or polo</strong> with <strong>jeans or light pants/skirts</strong>.";
-                if (!outerwear) outerwear = lowerCaseCondition.includes('windy') ? "A <strong>windbreaker</strong> or <strong>light jacket</strong>." : "Bring a <strong>light jacket or cardigan</strong> in case of a breeze.";
-            } else if (temp >= 50) {
-                mainLayers = "A <strong>long-sleeve shirt</strong> and <strong>jeans or heavier pants</strong>. A light sweater is a good idea.";
-                if (!outerwear) outerwear = "A <strong>medium jacket</strong> (e.g., denim, fleece, or utility jacket) is recommended.";
-            } else if (temp >= 35) {
-                mainLayers = "It's chilly! <strong>Layer</strong> with a <strong>warm sweater</strong> over a long-sleeve shirt. Long pants are a must.";
-                if (!outerwear) outerwear = "Wear a <strong>heavy jacket or winter coat</strong>.";
-                if (!lowerCaseCondition.includes('snow')) accessories = "<strong>Hat</strong> and <strong>gloves</strong> are highly recommended. Wear closed-toe shoes."; // Don't overwrite snow accessories
-            } else { // Below 35°F
-                mainLayers = "It's very cold! Wear a warm sweater and <strong>thermal layers</strong> (top and bottom).";
-                if (!outerwear) outerwear = "Wear your <strong>heaviest winter coat</strong> (insulated).";
-                if (!lowerCaseCondition.includes('snow')) accessories = "<strong>Hat</strong>, <strong>gloves</strong>, and <strong>scarf</strong> are essential. Wear <strong>insulated boots</strong>.";
-            }
-
-            // Return advice object
-            return {
-                outerwear: outerwear.trim(),
-                mainLayers: mainLayers.trim(),
-                accessories: accessories.trim()
-            };
+        // 2. Temperature Logic (Sets Main Layers and refines Outerwear if not set by condition)
+        if (temp >= 80) {
+            mainLayers = "It's hot! <strong>Short-sleeve shirt, tank top</strong>, and <strong>shorts or a light dress</strong> are perfect.";
+            if (!outerwear) outerwear = "No coat needed. Maybe a light cover-up if going indoors.";
+            accessories = "<strong>Sunscreen</strong>, <strong>sunglasses</strong>, and <strong>sandals or light sneakers</strong> are ideal.";
+        } else if (temp >= 65) {
+            mainLayers = "Comfortable layers: A <strong>t-shirt or polo</strong> with <strong>jeans or light pants/skirts</strong>.";
+            if (!outerwear) outerwear = lowerCaseCondition.includes('windy') ? "A <strong>windbreaker</strong> or <strong>light jacket</strong>." : "Bring a <strong>light jacket or cardigan</strong> in case of a breeze.";
+        } else if (temp >= 50) {
+            mainLayers = "A <strong>long-sleeve shirt</strong> and <strong>jeans or heavier pants</strong>. A light sweater is a good idea.";
+            if (!outerwear) outerwear = "A <strong>medium jacket</strong> (e.g., denim, fleece, or utility jacket) is recommended.";
+        } else if (temp >= 35) {
+            mainLayers = "It's chilly! <strong>Layer</strong> with a <strong>warm sweater</strong> over a long-sleeve shirt. Long pants are a must.";
+            if (!outerwear) outerwear = "Wear a <strong>heavy jacket or winter coat</strong>.";
+            if (!lowerCaseCondition.includes('snow')) accessories = "<strong>Hat</strong> and <strong>gloves</strong> are highly recommended. Wear closed-toe shoes."; 
+        } else { // Below 35°F
+            mainLayers = "It's very cold! Wear a warm sweater and <strong>thermal layers</strong> (top and bottom).";
+            if (!outerwear) outerwear = "Wear your <strong>heaviest winter coat</strong> (insulated).";
+            if (!lowerCaseCondition.includes('snow')) accessories = "<strong>Hat</strong>, <strong>gloves</strong>, and <strong>scarf</strong> are essential. Wear <strong>insulated boots</strong>.";
         }
 
+        // Return advice object
+        return {
+            outerwear: outerwear.trim(),
+            mainLayers: mainLayers.trim(),
+            accessories: accessories.trim()
+        };
+    }
 
-        // Event Listeners
+
+    // --- Event Listeners and Main Execution ---
+    
+    if (suggestionForm) {
         suggestionForm.addEventListener('submit', (e) => {
-            e.preventDefault();
+            // *** CRITICAL STEP: Prevent the default form submission (page refresh) ***
+            e.preventDefault(); 
+            
             errorMessage.textContent = '';
             
             const temp = tempInput.value;
             const condition = conditionInput.value;
 
+            // Input Validation
             if (temp === '' || isNaN(parseInt(temp, 10))) {
                 errorMessage.textContent = 'Please enter a valid temperature.';
                 suggestionContainer.classList.add('hidden');
@@ -204,29 +98,39 @@
 
             const numericTemp = parseInt(temp, 10);
             
-            // Get Suggestions
-            const suggestions = getClothingSuggestion(numericTemp, condition);
-            const iconData = getWeatherIcon(condition);
+            try {
+                // 1. Get Suggestions
+                const suggestions = getClothingSuggestion(numericTemp, condition);
+                const iconData = getWeatherIcon(condition);
 
-            // Update UI
-            displayTemp.textContent = `${numericTemp}°F`;
-            displayCondition.textContent = condition;
-            
-            // Icon
-            weatherIcon.className = `${iconData.icon} ${iconData.color}`;
+                // 2. Update UI
+                displayTemp.textContent = `${numericTemp}°F`;
+                displayCondition.textContent = condition;
+                
+                // Icon
+                weatherIcon.className = `${iconData.icon} ${iconData.color}`;
 
-            // Suggestions
-            outerwearEl.innerHTML = suggestions.outerwear;
-            mainLayersEl.innerHTML = suggestions.mainLayers;
-            accessoriesEl.innerHTML = suggestions.accessories;
+                // Suggestions
+                outerwearEl.innerHTML = suggestions.outerwear;
+                mainLayersEl.innerHTML = suggestions.mainLayers;
+                accessoriesEl.innerHTML = suggestions.accessories;
 
-            // Show results with animation
-            suggestionContainer.classList.remove('hidden');
-            setTimeout(() => {
-                suggestionContainer.classList.add('animate-in');
-            }, 10);
+                // 3. Show results with animation
+                suggestionContainer.classList.remove('hidden');
+                // Use a short delay to trigger the CSS animation
+                setTimeout(() => {
+                    suggestionContainer.classList.add('animate-in');
+                }, 10); 
+
+            } catch (error) {
+                // If an error occurs in the JS logic, display it instead of failing silently
+                console.error("Clothing suggestion error:", error);
+                errorMessage.textContent = 'An internal error occurred. Check the console for details.';
+                suggestionContainer.classList.add('hidden');
+            }
         });
-
-    </script>
-</body>
-</html>
+    } else {
+        // Fallback check if the form element wasn't found (highly unlikely)
+        console.error("Error: Could not find suggestion-form element.");
+    }
+</script>
