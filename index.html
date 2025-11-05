@@ -15,7 +15,7 @@
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border-radius: 1.5rem; /* Slightly larger border-radius */
+            border-radius: 1.5rem;
             border: 1px solid rgba(255, 255, 255, 0.3);
             transition: all 0.5s ease;
         }
@@ -131,4 +131,102 @@
             const c = condition.toLowerCase();
             if (c.includes('rain')) return { icon: 'fas fa-cloud-showers-heavy', color: 'text-blue-300' };
             if (c.includes('snow')) return { icon: 'far fa-snowflake', color: 'text-sky-300' };
-            if (c.includes('windy')) return { icon
+            if (c.includes('windy')) return { icon: 'fas fa-wind', color: 'text-gray-300' };
+            if (c.includes('sunny')) return { icon: 'fas fa-sun', color: 'text-yellow-300' };
+            if (c.includes('cloudy')) return { icon: 'fas fa-cloud', color: 'text-gray-400' };
+            return { icon: 'fas fa-question-circle', color: 'text-white' };
+        }
+
+        /**
+         * Generates detailed clothing advice broken into three categories.
+         */
+        function getClothingSuggestion(temp, condition) {
+            const lowerCaseCondition = condition.toLowerCase();
+            let outerwear = "";
+            let mainLayers = "";
+            let accessories = "Normal shoes and general comfort layers."; // Default
+
+            // 1. Condition Priority (Sets Outerwear and Accessories baseline)
+            if (lowerCaseCondition.includes('rain')) {
+                outerwear = "A <strong>waterproof jacket or raincoat</strong> is essential.";
+                accessories = "Wear <strong>waterproof shoes or boots</strong> if possible, and carry an <strong>umbrella</strong>.";
+            } else if (lowerCaseCondition.includes('snow')) {
+                outerwear = "A <strong>heavy, waterproof winter coat</strong> is crucial.";
+                accessories = "<strong>Waterproof, insulated boots</strong>, <strong>hat</strong>, and <strong>gloves/mittens</strong> are necessary.";
+            } else if (lowerCaseCondition.includes('windy')) {
+                 if (temp >= 50) accessories += " Consider a <strong>windbreaker</strong> or neck gaiter.";
+            }
+
+            // 2. Temperature Logic (Sets Main Layers and refines Outerwear if not set by condition)
+            if (temp >= 80) {
+                mainLayers = "It's hot! <strong>Short-sleeve shirt, tank top</strong>, and <strong>shorts or a light dress</strong> are perfect.";
+                if (!outerwear) outerwear = "No coat needed. Maybe a light cover-up if going indoors.";
+                accessories = "<strong>Sunscreen</strong>, <strong>sunglasses</strong>, and <strong>sandals or light sneakers</strong> are ideal.";
+            } else if (temp >= 65) {
+                mainLayers = "Comfortable layers: A <strong>t-shirt or polo</strong> with <strong>jeans or light pants/skirts</strong>.";
+                if (!outerwear) outerwear = lowerCaseCondition.includes('windy') ? "A <strong>windbreaker</strong> or <strong>light jacket</strong>." : "Bring a <strong>light jacket or cardigan</strong> in case of a breeze.";
+            } else if (temp >= 50) {
+                mainLayers = "A <strong>long-sleeve shirt</strong> and <strong>jeans or heavier pants</strong>. A light sweater is a good idea.";
+                if (!outerwear) outerwear = "A <strong>medium jacket</strong> (e.g., denim, fleece, or utility jacket) is recommended.";
+            } else if (temp >= 35) {
+                mainLayers = "It's chilly! <strong>Layer</strong> with a <strong>warm sweater</strong> over a long-sleeve shirt. Long pants are a must.";
+                if (!outerwear) outerwear = "Wear a <strong>heavy jacket or winter coat</strong>.";
+                if (!lowerCaseCondition.includes('snow')) accessories = "<strong>Hat</strong> and <strong>gloves</strong> are highly recommended. Wear closed-toe shoes."; // Don't overwrite snow accessories
+            } else { // Below 35°F
+                mainLayers = "It's very cold! Wear a warm sweater and <strong>thermal layers</strong> (top and bottom).";
+                if (!outerwear) outerwear = "Wear your <strong>heaviest winter coat</strong> (insulated).";
+                if (!lowerCaseCondition.includes('snow')) accessories = "<strong>Hat</strong>, <strong>gloves</strong>, and <strong>scarf</strong> are essential. Wear <strong>insulated boots</strong>.";
+            }
+
+            // Return advice object
+            return {
+                outerwear: outerwear.trim(),
+                mainLayers: mainLayers.trim(),
+                accessories: accessories.trim()
+            };
+        }
+
+
+        // Event Listeners
+        suggestionForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            errorMessage.textContent = '';
+            
+            const temp = tempInput.value;
+            const condition = conditionInput.value;
+
+            if (temp === '' || isNaN(parseInt(temp, 10))) {
+                errorMessage.textContent = 'Please enter a valid temperature.';
+                suggestionContainer.classList.add('hidden');
+                suggestionContainer.classList.remove('animate-in');
+                return;
+            }
+
+            const numericTemp = parseInt(temp, 10);
+            
+            // Get Suggestions
+            const suggestions = getClothingSuggestion(numericTemp, condition);
+            const iconData = getWeatherIcon(condition);
+
+            // Update UI
+            displayTemp.textContent = `${numericTemp}°F`;
+            displayCondition.textContent = condition;
+            
+            // Icon
+            weatherIcon.className = `${iconData.icon} ${iconData.color}`;
+
+            // Suggestions
+            outerwearEl.innerHTML = suggestions.outerwear;
+            mainLayersEl.innerHTML = suggestions.mainLayers;
+            accessoriesEl.innerHTML = suggestions.accessories;
+
+            // Show results with animation
+            suggestionContainer.classList.remove('hidden');
+            setTimeout(() => {
+                suggestionContainer.classList.add('animate-in');
+            }, 10);
+        });
+
+    </script>
+</body>
+</html>
